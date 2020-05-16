@@ -1,5 +1,9 @@
 #!/usr/bin/python
 
+import sys
+
+import Adafruit_DHT
+
 import zmq
 import RPi.GPIO as GPIO
 from time import sleep, strftime
@@ -11,6 +15,16 @@ from luma.core.virtual import viewport
 from luma.led_matrix.device import max7219
 from luma.core.legacy import text, show_message
 from luma.core.legacy.font import proportional, CP437_FONT, LCD_FONT
+
+#Setup Temperature Sensor
+sensor = Adafruit_DHT.AM2302
+pin = 4
+
+#Try to grab a sensor reading.
+humidity, temperature = Adafruit_DHT.read_retry(sensor, pin)
+
+#convert temperature to Fahrenheit
+temperature = temperature * 9/5.0 + 32
 
 #  Prepare server context and socket
 context = zmq.Context()
@@ -27,6 +41,17 @@ virtual = viewport(device, width=32, height=16)
 # Get the current time
 displaystring = datetime.now().strftime('%A %I:%M %p')
 print(displaystring)
+
+# Note that sometimes you won't get a reading and
+# the results will be null (because Linux can't
+# guarantee the timing of calls to read the sensor).
+# If this happens try again!
+if humidity is not None and temperature is not None:
+    print('Temp={0:0.1f}*  Humidity={1:0.1f}%'.format(temperature, humidity))
+else:
+    print('Failed to get reading. Try again!')
+    sys.exit(1))
+
 show_message(device, displaystring, fill="white", font=proportional(LCD_FONT), scroll_delay=0.08)
 
 try:
