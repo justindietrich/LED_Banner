@@ -30,6 +30,7 @@ temperature = temperature * 9/5.0 + 32
 context = zmq.Context()
 socket = context.socket(zmq.REP)
 socket.bind("tcp://*:5555")
+s.settimeout(0.00001)
 
 # Setup the Display
 serial = spi(port=0, device=0, gpio=noop())
@@ -60,10 +61,8 @@ def get_time_and_temp():
 
     show_message(device, displaystring, fill="white", font=proportional(LCD_FONT), scroll_delay=0.08)
 
-get_time_and_temp()
-
-try:
-    while True:
+def wait_for_message();
+    try:
         # Wait for next request from client
         message = socket.recv()
         # Convert binary data to string
@@ -75,7 +74,15 @@ try:
 
         # display message on 7219
         show_message(device, stringdata, fill="white", font=proportional(LCD_FONT), scroll_delay=0.08)
+    except socket.timeout as e:
+        print except
 
+get_time_and_temp()
+
+try:
+    while True:
+        wait_for_message()
+        get_time_and_temp()
 #        show_message(device, 'Happy Birthday Ella!!', fill="white", font=proportional(LCD_FONT), scroll_delay=0.08)
 #        with canvas(virtual) as draw:
 #            #text(draw, (0, 1), "Happy Birthday Ella!!", fill="white", font=proportional(CP437_FONT))
