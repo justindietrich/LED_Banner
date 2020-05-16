@@ -61,7 +61,7 @@ def get_time_and_temp():
 
     show_message(device, displaystring, fill="white", font=proportional(LCD_FONT), scroll_delay=0.08)
 
-def wait_for_message();
+def wait_for_message():
     try:
         # Wait for next request from client
         message = socket.recv()
