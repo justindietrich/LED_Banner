@@ -30,7 +30,7 @@ temperature = temperature * 9/5.0 + 32
 context = zmq.Context()
 socket = context.socket(zmq.REP)
 socket.bind("tcp://*:5555")
-s.settimeout(0.00001)
+#socket.settimeout(0.00001)
 
 # Setup the Display
 serial = spi(port=0, device=0, gpio=noop())
@@ -75,13 +75,15 @@ def wait_for_message():
         # display message on 7219
         show_message(device, stringdata, fill="white", font=proportional(LCD_FONT), scroll_delay=0.08)
     except socket.timeout as e:
-        print except
+        io =  1
+        #print e
 
 get_time_and_temp()
 
 try:
     while True:
-        wait_for_message()
+        #wait_for_message()
+        sleep(0.5)
         get_time_and_temp()
 #        show_message(device, 'Happy Birthday Ella!!', fill="white", font=proportional(LCD_FONT), scroll_delay=0.08)
 #        with canvas(virtual) as draw:
