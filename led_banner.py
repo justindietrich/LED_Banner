@@ -48,22 +48,22 @@ def get_time_and_temp():
     #Try to grab a sensor reading.
     humidity, temperature = Adafruit_DHT.read_retry(sensor, pin)
 
-    #convert temperature to Fahrenheit
-    temperature = temperature * 9/5.0 + 32
-
     # Note that sometimes you won't get a reading and
     # the results will be null (because Linux can't
     # guarantee the timing of calls to read the sensor).
     # If this happens try again!
     if humidity is not None and temperature is not None:
+        #convert temperature to Fahrenheit
+        temperature = temperature * 9/5.0 + 32
         tempstring = ' {0:0.1f}*  {1:0.1f}%'.format(temperature, humidity)
         print(tempstring)
+        displaystring = displaystring + tempstring
         #print('Temp={0:0.1f}*  Humidity={1:0.1f}%'.format(temperature, humidity))
     else:
         print('Failed to get reading. Try again!')
-        sys.exit(1)
+        #sys.exit(1)
 
-    displaystring = displaystring + tempstring
+    #displaystring = displaystring + tempstring
 
     show_message(device, displaystring, fill="white", font=proportional(LCD_FONT), scroll_delay=0.08)
 
@@ -89,7 +89,7 @@ get_time_and_temp()
 try:
     while True:
         #wait_for_message()
-        sleep(0.5)
+        sleep(1)
         get_time_and_temp()
 #        show_message(device, 'Happy Birthday Ella!!', fill="white", font=proportional(LCD_FONT), scroll_delay=0.08)
 #        with canvas(virtual) as draw:
