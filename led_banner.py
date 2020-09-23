@@ -1,8 +1,9 @@
 #!/usr/bin/python
 
 import sys
-
-import Adafruit_DHT
+import time
+import board
+import adafruit_dht
 
 import zmq
 import RPi.GPIO as GPIO
@@ -16,15 +17,14 @@ from luma.led_matrix.device import max7219
 from luma.core.legacy import text, show_message
 from luma.core.legacy.font import proportional, CP437_FONT, LCD_FONT
 
-#Setup Temperature Sensor
-sensor = Adafruit_DHT.AM2302
-pin = 4
 
-#Try to grab a sensor reading.
-humidity, temperature = Adafruit_DHT.read_retry(sensor, pin)
-
-#convert temperature to Fahrenheit
-temperature = temperature * 9/5.0 + 32
+# Initial the dht device, with data pin connected to:
+dhtDevice = adafruit_dht.DHT22(board.D4)
+ 
+# you can pass DHT22 use_pulseio=False if you wouldn't like to use pulseio.
+# This may be necessary on a Linux single board computer like the Raspberry Pi,
+# but it will not work in CircuitPython.
+# dhtDevice = adafruit_dht.DHT22(board.D18, use_pulseio=False)
 
 #  Prepare server context and socket
 context = zmq.Context()
@@ -41,30 +41,30 @@ virtual = viewport(device, width=32, height=16)
 
 
 def get_time_and_temp():
+    print("get_Time_and_temp")
     # Get the current time
     displaystring = datetime.now().strftime('%A %I:%M %p')
     print(displaystring)
 
-    #Try to grab a sensor reading.
-    humidity, temperature = Adafruit_DHT.read_retry(sensor, pin)
+    try: 
+        #Try to grab a sensor reading.
+        temperature_c = dhtDevice.temperature
+        temperature_f = temperature_c * (9/5) +32
+        humidity = dhtDevice.humidity
 
-    # Note that sometimes you won't get a reading and
-    # the results will be null (because Linux can't
-    # guarantee the timing of calls to read the sensor).
-    # If this happens try again!
-    if humidity is not None and temperature is not None:
-        #convert temperature to Fahrenheit
-        temperature = temperature * 9/5.0 + 32
-        tempstring = ' {0:0.1f}*  {1:0.1f}%'.format(temperature, humidity)
+        tempstring = ' {0:0.1f}*  {1:0.1f}%'.format(temperature_f, humidity)
         print(tempstring)
         displaystring = displaystring + tempstring
-        #print('Temp={0:0.1f}*  Humidity={1:0.1f}%'.format(temperature, humidity))
-    else:
-        print('Failed to get reading. Try again!')
-        #sys.exit(1)
-
-    #displaystring = displaystring + tempstring
-
+    
+    except RuntimeError as error:
+        # Errors happen fairly often, DHT's are hard to read, just keep going
+        print(error.args[0])
+        time.sleep(0.5)
+    except Exception as error:
+        dhtDevice.exit()
+        raise error
+    
+    print("Displaying message")
     show_message(device, displaystring, fill="white", font=proportional(LCD_FONT), scroll_delay=0.08)
 
 def wait_for_message():
