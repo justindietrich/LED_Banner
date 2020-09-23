@@ -45,6 +45,12 @@ def get_time_and_temp():
     displaystring = datetime.now().strftime('%A %I:%M %p')
     print(displaystring)
 
+    #Try to grab a sensor reading.
+    humidity, temperature = Adafruit_DHT.read_retry(sensor, pin)
+
+    #convert temperature to Fahrenheit
+    temperature = temperature * 9/5.0 + 32
+
     # Note that sometimes you won't get a reading and
     # the results will be null (because Linux can't
     # guarantee the timing of calls to read the sensor).
